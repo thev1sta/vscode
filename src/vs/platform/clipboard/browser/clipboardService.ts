@@ -132,6 +132,12 @@ export class BrowserClipboardService extends Disposable implements IClipboardSer
 		}
 
 		if (this.webKitPendingClipboardWritePromise) {
+			// Fallback on Safari if clipboard is not available
+			if (getActiveWindow().navigator.clipboard === undefined) {
+				this.webKitPendingClipboardWritePromise.cancel();
+				return this.fallbackWriteText(text);
+			}
+
 			// For Safari, we complete this Promise which allows the call to `navigator.clipboard.write()`
 			// above to resolve and successfully copy to the clipboard. If we let this continue, Safari
 			// would throw an error because this call stack doesn't appear to originate from a user gesture.
